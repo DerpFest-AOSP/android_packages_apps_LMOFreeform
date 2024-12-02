@@ -1,0 +1,52 @@
+<resources>
+    <string name="app_name">Sidebar</string>
+
+    <!--SettingsFragment-->
+    <string name="enable_sideline">Seitenleiste verwenden</string>
+    <string name="sidebar_label">Seitenleiste</string>
+    <string name="sidebar_summary">Schnellstart von Apps in einem schwebenden Fenster</string>
+    <string name="sidebar_app_setting_label">Angeheftete Apps</string>
+    <string name="sidebar_settings_description">Seitenleisten-Einstellungen öffnen</string>
+    <string name="sidebar_predicted_apps">App-Vorschläge anzeigen</string>
+    <string name="sidebar_predicted_apps_summary">Bis zu 6 vorgeschlagene Apps unter angepinnten Apps anzeigen</string>
+
+    <!-- Sidebar customization -->
+    <string name="sidebar_customization_title">Seitenleistenanpassung</string>
+
+    <!-- Sections -->
+    <string name="sidebar_section_slider">Slider-Einstellungen</string>
+    <string name="sidebar_section_layout">Layout-Einstellungen</string>
+    <string name="sidebar_section_visual">Visuelle Effekte</string>
+    <string name="sidebar_section_miscellaneous">Sonstiges</string>
+
+    <!-- Slider settings -->
+    <string name="sidebar_transparency_value">Slidertransparenz: %1$.2f</string>
+    <string name="sidebar_length_value">Sliderlänge: %1$d</string>
+    <string name="sidebar_width_value">Sliderbreite: %1$d</string>
+    <string name="sidebar_position_label">Sliderposition</string>
+    <string name="sidebar_left">Links</string>
+    <string name="sidebar_right">Rechts</string>
+
+    <!-- Layout settings -->
+    <plurals name="sidebar_columns_value">
+        <item quantity="one">%1$d Spalte</item>
+        <item quantity="other">%1$d Spalten</item>
+    </plurals>
+    <string name="sidebar_icon_size_value">Symbolgröße: %1$d dp</string>
+    <string name="sidebar_icon_padding_value">Symbolabstand</string>
+    <string name="sidebar_column_spacing_value">Spaltenabstand: %1$d dp</string>
+    <string name="sidebar_corner_radius_value">Eckenradius: %1$d dp</string>
+    <string name="sidebar_bg_transparency_value">Hintergrundtransparenz: %1$.2f</string>
+    <string name="sidebar_reset_defaults">Auf Standardwerte zurücksetzen</string>
+
+    <!-- Visual effects -->
+    <string name="sidebar_drop_shadow_title">Schatteneffekt</string>
+
+    <!-- Miscellaneous -->
+    <string name="sidebar_tap_to_open_title">Menü durch Antippen öffnen</string>
+    <string name="sidebar_tap_to_open_summary">Öffnet die Seitenleiste beim Antippen des Schiebereglers</string>
+    <string name="sidebar_swipe_to_open_title">Menü durch Wischen öffnen</string>
+    <string name="sidebar_swipe_to_open_summary">Öffnet die Seitenleiste beim horizontalen Wischen über den Schieberegler</string>
+    <string name="sidebar_hide_on_gamespace_title">Verstecken, wenn GameSpace aktiv ist</string>
+    <string name="sidebar_hide_on_gamespace_summary">Sidebar Slider automatisch ausblenden, wenn ein Spiel mit GameSpace läuft</string>
+</resources>
