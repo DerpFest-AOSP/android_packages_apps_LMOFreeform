@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">侧边栏</string>
+
+    <!--SettingsFragment-->
+    <string name="enable_sideline">使用侧边栏</string>
+    <string name="sidebar_label">侧边栏</string>
+    <string name="sidebar_summary">在浮动窗口中快速打开应用</string>
+    <string name="sidebar_app_setting_label">固定应用</string>
+    <string name="sidebar_settings_description">打开侧边栏设置</string>
+    <string name="sidebar_predicted_apps">显示应用推荐</string>
+    <string name="sidebar_predicted_apps_summary">在固定应用下方显示最多 6 个推荐应用</string>
+</resources>
