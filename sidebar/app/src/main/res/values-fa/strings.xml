@@ -1,0 +1,10 @@
+<resources>
+    <!--SettingsFragment-->
+    <string name="enable_sideline">استفاده از سایدبار</string>
+    <string name="sidebar_label">سایدبار</string>
+    <string name="sidebar_summary">باز کردن سریع برنامه‌ها در یک پنجره شناور</string>
+    <string name="sidebar_app_setting_label">برنامه‌های پین‌شده</string>
+    <string name="sidebar_settings_description">باز کردن تنظیمات سایدبار</string>
+    <string name="sidebar_predicted_apps">نمایش پیشنهاد برنامه‌ها</string>
+    <string name="sidebar_predicted_apps_summary">نمایش حداکثر ۶ برنامه پیشنهادی زیر برنامه‌های پین‌شده</string>
+</resources>
