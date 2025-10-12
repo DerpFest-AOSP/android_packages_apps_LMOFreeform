@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">LMOFreeform</string>
+    
+    <!-- Toast messages -->
+    <string name="freeform_service_unavailable">Freeform-Dienst nicht verfügbar</string>
+    <string name="freeform_window_failed">Öffnen in schwebendem Fenster fehlgeschlagen</string>
+</resources>
+

@@ -36,8 +36,8 @@ object LMOFreeformServiceManager {
     }
 
     fun createWindow(packageName: String, activityName: String, userId: Int, taskId: Int,
-            width: Int, height: Int, densityDpi: Int) {
-        try {
+            width: Int, height: Int, densityDpi: Int): Boolean {
+        return try {
             iLMOFreeformService?.startAppInFreeform(
                 packageName,
                 activityName,
@@ -47,14 +47,16 @@ object LMOFreeformServiceManager {
                 width,
                 height,
                 densityDpi
-            ) ?: Log.e(TAG, "Cannot create window: service not initialized")
+            )
+            iLMOFreeformService != null
         } catch (e: Exception) {
             Log.e(TAG, "Failed to create window for $packageName/$activityName", e)
+            false
         }
     }
 
-    fun createWindow(pendingIntent: PendingIntent?, width: Int, height: Int, densityDpi: Int) {
-        try {
+    fun createWindow(pendingIntent: PendingIntent?, width: Int, height: Int, densityDpi: Int): Boolean {
+        return try {
             iLMOFreeformService?.startAppInFreeform(
                 pendingIntent?.creatorPackage ?: "pendingIntentCreatorPackage",
                 "unknownActivity-${Date().time}",
@@ -64,9 +66,11 @@ object LMOFreeformServiceManager {
                 width,
                 height,
                 densityDpi
-            ) ?: Log.e(TAG, "Cannot create window: service not initialized")
+            )
+            iLMOFreeformService != null
         } catch (e: Exception) {
             Log.e(TAG, "Failed to create window from PendingIntent", e)
+            false
         }
     }
 

@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">LMOFreeform</string>
+    
+    <!-- Toast messages -->
+    <string name="freeform_service_unavailable">Freeform service unavailable</string>
+    <string name="freeform_window_failed">Failed to open in floating window</string>
 </resources>
