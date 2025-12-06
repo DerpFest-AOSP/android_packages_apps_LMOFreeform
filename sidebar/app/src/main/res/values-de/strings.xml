@@ -16,6 +16,7 @@
 
     <!-- Sidebar customization -->
     <string name="sidebar_customization_title">Seitenleiste anpassen</string>
+    <string name="sidebar_customization_button">Seitenleiste anpassen</string>
 
     <!-- Sections -->
     <string name="sidebar_section_slider">Schiebereglereinstellungen</string>

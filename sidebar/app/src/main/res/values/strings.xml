@@ -16,6 +16,7 @@
 
     <!-- Sidebar customization -->
     <string name="sidebar_customization_title">Sidebar customization</string>
+    <string name="sidebar_customization_button">Sidebar customization</string>
 
     <!-- Sections -->
     <string name="sidebar_section_slider">Slider settings</string>
