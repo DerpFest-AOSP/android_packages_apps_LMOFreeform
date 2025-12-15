@@ -158,8 +158,7 @@ public class LMOFreeformDisplayAdapter extends DisplayAdapter {
                               FreeformFlags flags,
                               Surface surface, Callback callback, IBinder appToken) {
 
-            super(LMOFreeformDisplayAdapter.this, displayToken, uniqueId,
-                    getContext(), false /* isOwnContentOnly */);
+            super(LMOFreeformDisplayAdapter.this, displayToken, uniqueId, getContext());
             mName = uniqueId;
             mRefreshRate = refreshRate;
             mDisplayPresentationDeadlineNanos = presentationDeadlineNanos;
@@ -168,7 +167,10 @@ public class LMOFreeformDisplayAdapter extends DisplayAdapter {
             mWidth = width;
             mHeight = height;
             mDensityDpi = density;
-            mMode = createMode(mWidth, mHeight, refreshRate);
+            mMode = new Display.Mode.Builder()
+                .setResolution(mWidth, mHeight)
+                .setRefreshRate(refreshRate)
+                .build();
             mCallback = callback;
             mAppToken = appToken;
             mPendingChanges |= PENDING_SURFACE_CHANGE;
@@ -180,7 +182,10 @@ public class LMOFreeformDisplayAdapter extends DisplayAdapter {
                 sendTraversalRequestLocked();
                 mWidth = width;
                 mHeight = height;
-                mMode = createMode(width, height, mRefreshRate);
+                mMode = new Display.Mode.Builder()
+                    .setResolution(width, height)
+                    .setRefreshRate(mRefreshRate)
+                    .build();
                 mDensityDpi = densityDpi;
                 mInfo = null;
             }
