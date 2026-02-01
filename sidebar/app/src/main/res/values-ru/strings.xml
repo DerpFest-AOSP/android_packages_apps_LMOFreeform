@@ -1,0 +1,52 @@
+<resources>
+    <string name="app_name">Sidebar</string>
+
+    <!--SettingsFragment-->
+    <string name="enable_sideline">Использовать Боковую панель</string>
+    <string name="sidebar_label">Боковая панель</string>
+    <string name="sidebar_summary">Быстрое открытие приложений в плавающем окне</string>
+    <string name="sidebar_app_setting_label">Закрепленные приложения</string>
+    <string name="sidebar_settings_description">Открыть настройки Боковой панели</string>
+    <string name="sidebar_predicted_apps">Показывать предлагаемые приложения</string>
+    <string name="sidebar_predicted_apps_summary">Показывать до 6 предлагаемых приложений под закрепленными приложениями</string>
+    <string name="sidebar_auto_enable_selected_apps">Автоматически включать боковую панель для выбранных приложений</string>
+    <string name="sidebar_auto_enable_selected_apps_summary">Автоматически показывать боковую панель, когда выбранные приложения запущены</string>
+    <string name="sidebar_per_app_config">Настройка приложений</string>
+    <string name="sidebar_per_app_config_summary">Выберите приложения, которые должны автоматически включать боковую панель</string>
+
+    <!-- Sidebar customization -->
+    <string name="sidebar_customization_title">Настройка боковой панели</string>
+    <string name="sidebar_customization_button">Настройка панели</string>
+
+    <!-- Sections -->
+    <string name="sidebar_section_slider">Настройки слайдера</string>
+    <string name="sidebar_section_layout">Настройки макета</string>
+    <string name="sidebar_section_visual">Визуальные эффекты</string>
+
+    <!-- Slider settings -->
+    <string name="sidebar_transparency_value">Прозрачность: %1$.2f</string>
+    <string name="sidebar_length_value">Длина слайдера: %1$d px</string>
+    <string name="sidebar_position_label">Позиция</string>
+    <string name="sidebar_left">Слева</string>
+    <string name="sidebar_right">Справа</string>
+
+    <!-- Layout settings -->
+    <plurals name="sidebar_columns_value">
+        <item quantity="one">%1$d колонка</item>
+        <item quantity="few">%1$d колонки</item>
+        <item quantity="many">%1$d колонок</item>
+        <item quantity="other">%1$d колонки</item>
+    </plurals>
+    <string name="sidebar_icon_size_value">Размер иконки: %1$d dp</string>
+    <string name="sidebar_icon_padding_value">Отступы иконки: %1$d dp</string>
+    <string name="sidebar_icon_padding_summary">Пространство вокруг каждой иконки</string>
+    <string name="sidebar_column_spacing_value">Пространство между столбцами: %1$d dp</string>
+    <string name="sidebar_column_spacing_summary">Размер пространства между столбцами</string>
+    <string name="sidebar_corner_radius_value">Радиус углов: %1$d dp</string>
+    <string name="sidebar_bg_transparency_value">Прозрачность фона: %1$.2f</string>
+    <string name="sidebar_reset_defaults">Сбросить к значениям по умолчанию</string>
+
+    <!-- Visual effects -->
+    <string name="sidebar_drop_shadow_title">Отбрасывание тени</string>
+    <string name="sidebar_drop_shadow_summary">Добавить эффект тени для боковой панели</string>
+</resources>
