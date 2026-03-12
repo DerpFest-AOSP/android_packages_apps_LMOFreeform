@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">LMO 小視窗</string>
+
+    <!-- Toast messages -->
+    <string name="freeform_service_unavailable">小視窗功能無法使用</string>
+    <string name="freeform_window_failed">無法在小視窗中打開</string>
+</resources>
