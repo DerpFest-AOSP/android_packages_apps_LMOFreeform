@@ -57,5 +57,14 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <receiver
+            android:name=".receiver.GameSpaceReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="io.chaldeaprjkt.gamespace.action.GAME_START" />
+                <action android:name="io.chaldeaprjkt.gamespace.action.GAME_STOP" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

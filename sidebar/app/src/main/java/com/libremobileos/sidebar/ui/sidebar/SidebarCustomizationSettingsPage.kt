@@ -57,6 +57,7 @@ fun SidebarCustomizationSettingsPage(
     var showShadow by remember { mutableStateOf(sharedPrefs.getBoolean("sidebar_show_shadow", true)) }
     var tapToOpen by remember { mutableStateOf(sharedPrefs.getBoolean("sidebar_tap_to_open", false)) }
     var swipeToOpen by remember { mutableStateOf(sharedPrefs.getBoolean("sidebar_swipe_to_open", true)) }
+    var hideOnGameSpace by remember { mutableStateOf(sharedPrefs.getBoolean("sidebar_hide_on_gamespace", false)) }
 
     fun update(block: SharedPreferences.Editor.() -> Unit) {
         sharedPrefs.edit().apply(block).apply()
@@ -235,6 +236,28 @@ fun SidebarCustomizationSettingsPage(
                                     )
                                 }
                             }
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Switch(
+                                    checked = hideOnGameSpace,
+                                    onCheckedChange = {
+                                        hideOnGameSpace = it
+                                        update { putBoolean("sidebar_hide_on_gamespace", it) }
+                                    },
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column {
+                                    Text(stringResource(R.string.sidebar_hide_on_gamespace_title))
+                                    Text(
+                                        text = stringResource(R.string.sidebar_hide_on_gamespace_summary),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -246,6 +269,7 @@ fun SidebarCustomizationSettingsPage(
                             cornerRadius = 24f; backgroundTransparency = 0.8f; showShadow = true
                             tapToOpen = false
                             swipeToOpen = true
+                            hideOnGameSpace = false
                             update {
                                 putFloat("slider_transparency", transparency); putInt("slider_length", sliderLength)
                                 putInt("sideline_position_x", position); putInt("sidebar_columns", columnCount)
@@ -256,6 +280,7 @@ fun SidebarCustomizationSettingsPage(
                                 putBoolean("sidebar_show_shadow", showShadow)
                                 putBoolean("sidebar_tap_to_open", tapToOpen)
                                 putBoolean("sidebar_swipe_to_open", swipeToOpen)
+                                putBoolean("sidebar_hide_on_gamespace", hideOnGameSpace)
                             }
                         },
                         modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
