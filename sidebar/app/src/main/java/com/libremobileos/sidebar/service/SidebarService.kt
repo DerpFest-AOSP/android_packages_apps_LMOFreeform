@@ -4,8 +4,10 @@ import android.annotation.SuppressLint
 import android.app.IActivityManager
 import android.app.Service
 import android.app.UserSwitchObserver
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.graphics.PixelFormat
@@ -66,6 +68,8 @@ class SidebarService : Service(), SharedPreferences.OnSharedPreferenceChangeList
         }
     }
 
+    private var isGameSpaceActive = false
+
     private val isPortrait: Boolean
         get() = resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
 
@@ -83,6 +87,7 @@ class SidebarService : Service(), SharedPreferences.OnSharedPreferenceChangeList
 
         const val SLIDER_TRANSPARENCY = "slider_transparency"
         const val SLIDER_LENGTH = "slider_length"
+        const val SLIDER_WIDTH = "slider_width"
         const val SIDEBAR_COLUMNS = "sidebar_columns"
         const val SIDEBAR_ICON_SIZE = "sidebar_icon_size"
         const val SIDEBAR_ICON_PADDING = "sidebar_icon_padding"
@@ -90,6 +95,11 @@ class SidebarService : Service(), SharedPreferences.OnSharedPreferenceChangeList
         const val SIDEBAR_CORNER_RADIUS = "sidebar_corner_radius"
         const val SIDEBAR_BACKGROUND_TRANSPARENCY = "sidebar_background_transparency"
         const val SIDEBAR_SHOW_SHADOW = "sidebar_show_shadow"
+        const val SIDEBAR_TAP_TO_OPEN = "sidebar_tap_to_open"
+        const val SIDEBAR_SWIPE_TO_OPEN = "sidebar_swipe_to_open"
+        const val SIDEBAR_HIDE_ON_GAMESPACE = "sidebar_hide_on_gamespace"
+        const val ACTION_GAME_START = "io.chaldeaprjkt.gamespace.action.GAME_START"
+        const val ACTION_GAME_STOP = "io.chaldeaprjkt.gamespace.action.GAME_STOP"
 
         //是否展示侧边条
         const val SIDELINE = "sideline"
@@ -119,7 +129,23 @@ class SidebarService : Service(), SharedPreferences.OnSharedPreferenceChangeList
         sharedPrefs = application.applicationContext.getSharedPreferences(SidebarApplication.CONFIG, Context.MODE_PRIVATE)
         sharedPrefs.registerOnSharedPreferenceChangeListener(this)
         iActivityManager.registerUserSwitchObserver(userSwitchObserver, TAG)
+        
         serviceStarted = true
+        
+        intent?.action?.let { action ->
+            when (action) {
+                ACTION_GAME_START -> {
+                    logger.d("onStartCommand: GameSpace started")
+                    isGameSpaceActive = true
+                    updateSidebarVisibility()
+                }
+                ACTION_GAME_STOP -> {
+                    logger.d("onStartCommand: GameSpace stopped")
+                    isGameSpaceActive = false
+                    updateSidebarVisibility()
+                }
+            }
+        }
 
         sidebarView = SidebarView(this@SidebarService, viewModel, object : SidebarView.Callback {
             override fun onRemove() {
@@ -131,7 +157,8 @@ class SidebarService : Service(), SharedPreferences.OnSharedPreferenceChangeList
                 
                 logger.d("onRemove - masterEnabled: $masterEnabled, autoEnabled: $autoEnabled, shouldShowService: $shouldShowService, isShowingSideline: $isShowingSideline")
                 
-                if (shouldShowService && isShowingSideline) {
+                val hideOnGameSpace = sharedPrefs.getBoolean(SIDEBAR_HIDE_ON_GAMESPACE, false)
+                if (shouldShowService && isShowingSideline && !(isGameSpaceActive && hideOnGameSpace)) {
                     sideLineView.animate().cancel()
                     animateShowSideline()
                 }
@@ -209,8 +236,9 @@ class SidebarService : Service(), SharedPreferences.OnSharedPreferenceChangeList
                     sideLineView.alpha = transparency
                 }
             }
-            SLIDER_LENGTH, SIDELINE_POSITION_X -> {
+            SLIDER_LENGTH, SLIDER_WIDTH, SIDELINE_POSITION_X -> {
                 if (isShowingSideline) {
+                    layoutParams.width = getSliderWidth()
                     layoutParams.height = getSliderLength()
                     updateSidelinePosition()
                     updateViewLayout()
@@ -218,6 +246,9 @@ class SidebarService : Service(), SharedPreferences.OnSharedPreferenceChangeList
             }
             SIDEBAR_COLUMNS, SIDEBAR_ICON_SIZE, SIDEBAR_ICON_PADDING, SIDEBAR_COLUMN_SPACING, SIDEBAR_CORNER_RADIUS, SIDEBAR_BACKGROUND_TRANSPARENCY, SIDEBAR_SHOW_SHADOW -> {
                 logger.d("Sidebar appearance setting changed: $key")
+            }
+            SIDEBAR_HIDE_ON_GAMESPACE -> {
+                updateSidebarVisibility()
             }
         }
     }
@@ -227,6 +258,13 @@ class SidebarService : Service(), SharedPreferences.OnSharedPreferenceChangeList
         sidebarView.showView()
         isShowingSidebar = true
         animateHideSideline()
+    }
+
+    override fun onSwipeToOpen() {
+        if (sharedPrefs.getBoolean(SIDEBAR_SWIPE_TO_OPEN, true)) {
+            logger.d("onSwipeToOpen: showing sidebar")
+            showSidebar()
+        }
     }
 
     override fun beginMoveSideline() {
@@ -256,7 +294,7 @@ class SidebarService : Service(), SharedPreferences.OnSharedPreferenceChangeList
     override fun endMoveSideline() {
         logger.d("endMoveSideline")
         layoutParams.apply {
-            width = SIDELINE_WIDTH
+            width = getSliderWidth()
             y = constrainY(y)
         }
         updateViewLayout()
@@ -265,6 +303,13 @@ class SidebarService : Service(), SharedPreferences.OnSharedPreferenceChangeList
             setIntSp(SIDELINE_POSITION_Y_PORTRAIT, layoutParams.y)
         } else {
             setIntSp(SIDELINE_POSITION_Y_LANDSCAPE, layoutParams.y)
+        }
+    }
+
+    override fun onSingleTapUp() {
+        if (sharedPrefs.getBoolean(SIDEBAR_TAP_TO_OPEN, false)) {
+            logger.d("onSingleTapUp: showing sidebar")
+            showSidebar()
         }
     }
 
@@ -287,18 +332,26 @@ class SidebarService : Service(), SharedPreferences.OnSharedPreferenceChangeList
         return sharedPrefs.getInt(SLIDER_LENGTH, DEFAULT_SIDELINE_HEIGHT)
     }
 
+    private fun getSliderWidth(): Int {
+        return sharedPrefs.getInt(SLIDER_WIDTH, SIDELINE_WIDTH)
+    }
+
     /**
      * 启动侧边条
      */
     @SuppressLint("ClickableViewAccessibility")
     private fun showView() {
         if (isShowingSideline) return
+        if (isGameSpaceActive && sharedPrefs.getBoolean(SIDEBAR_HIDE_ON_GAMESPACE, false)) {
+            logger.d("showView: GameSpace is active and hide toggle is on, skipping")
+            return
+        }
 
         logger.d("showView")
 
         layoutParams.apply {
             type = LayoutParams.TYPE_APPLICATION_OVERLAY
-            width = SIDELINE_WIDTH
+            width = getSliderWidth()
             height = getSliderLength()
             flags = LayoutParams.FLAG_NOT_FOCUSABLE or
                     LayoutParams.FLAG_NOT_TOUCH_MODAL or
@@ -313,8 +366,9 @@ class SidebarService : Service(), SharedPreferences.OnSharedPreferenceChangeList
         val transparency = sharedPrefs.getFloat(SLIDER_TRANSPARENCY, 1.0f)
         sideLineView.alpha = transparency
 
+        val currentWidth = getSliderWidth()
         sideLineView.setSystemGestureExclusionRects(
-            listOf(Rect(0, 0, SIDELINE_WIDTH, getSliderLength()))
+            listOf(Rect(0, 0, currentWidth, getSliderLength()))
         )
 
         updateSidelinePosition()
@@ -388,9 +442,34 @@ class SidebarService : Service(), SharedPreferences.OnSharedPreferenceChangeList
         isShowingSideline = false
     }
 
+    private fun updateSidebarVisibility() {
+        if (!sharedPrefs.getBoolean(SIDEBAR_HIDE_ON_GAMESPACE, false)) {
+            if (!isGameSpaceActive) {
+                val masterEnabled = sharedPrefs.getBoolean(SIDELINE, false)
+                val autoEnabled = sharedPrefs.getBoolean(SidebarMonitorService.KEY_AUTO_ENABLED_TEMP, false)
+                if (masterEnabled || autoEnabled) {
+                    showView()
+                }
+            }
+            return
+        }
+
+        if (isGameSpaceActive) {
+            logger.d("updateSidebarVisibility: GameSpace active, removing view")
+            removeView()
+        } else {
+            logger.d("updateSidebarVisibility: GameSpace stopped, restoring view if needed")
+            val masterEnabled = sharedPrefs.getBoolean(SIDELINE, false)
+            val autoEnabled = sharedPrefs.getBoolean(SidebarMonitorService.KEY_AUTO_ENABLED_TEMP, false)
+            if (masterEnabled || autoEnabled) {
+                showView()
+            }
+        }
+    }
+
     private fun animateHideSideline() {
         logger.d("animateHideSideline")
-        sideLineView.animate().translationX(sidelinePositionX * 1.0f * SIDELINE_WIDTH).setDuration(300).start()
+        sideLineView.animate().translationX(sidelinePositionX * 1.0f * getSliderWidth()).setDuration(300).start()
     }
 
     private fun animateShowSideline() {
