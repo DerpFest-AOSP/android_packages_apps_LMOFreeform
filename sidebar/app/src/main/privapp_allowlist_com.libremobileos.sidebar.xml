@@ -7,5 +7,6 @@
         <permission name="com.libremobileos.permission.START_FREEFORM"/>
         <permission name="android.permission.PACKAGE_USAGE_STATS"/>
         <permission name="android.permission.GET_TASKS"/>
+        <permission name="android.permission.MANAGE_GAME_MODE"/>
     </privapp-permissions>
 </permissions>
