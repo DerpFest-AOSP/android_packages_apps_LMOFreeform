@@ -255,15 +255,9 @@ class FreeformWindow(
         measureSize()
         measureScale()
         context.display.getDisplayInfo(defaultDisplayInfo)
-        val maxRefreshRate = context.display.supportedModes
-            .maxOfOrNull { it.refreshRate } ?: defaultDisplayInfo.refreshRate
         freeformConfig.apply {
-            refreshRate = maxRefreshRate
-            presentationDeadlineNanos = if (maxRefreshRate > 0f) {
-                (1_000_000_000L / maxRefreshRate).toLong()
-            } else {
-                defaultDisplayInfo.presentationDeadlineNanos
-            }
+            refreshRate = defaultDisplayInfo.refreshRate
+            presentationDeadlineNanos = defaultDisplayInfo.presentationDeadlineNanos
             dlog(TAG, "populateFreeformConfig: $this")
         }
     }
