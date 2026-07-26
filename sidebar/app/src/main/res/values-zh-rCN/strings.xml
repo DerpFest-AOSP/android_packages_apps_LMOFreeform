@@ -9,4 +9,51 @@
     <string name="sidebar_settings_description">打开侧边栏设置</string>
     <string name="sidebar_predicted_apps">显示应用推荐</string>
     <string name="sidebar_predicted_apps_summary">在固定应用下方显示最多 6 个推荐应用</string>
+    <string name="sidebar_auto_enable_selected_apps">为所选应用自动启用侧边栏</string>
+    <string name="sidebar_auto_enable_selected_apps_summary">启动已配置的应用时自动显示侧边栏</string>
+    <string name="sidebar_per_app_config">配置应用</string>
+    <string name="sidebar_per_app_config_summary">选择应自动启用侧边栏的应用</string>
+
+    <!-- Sidebar customization -->
+    <string name="sidebar_customization_title">侧边栏自定义</string>
+
+    <!-- Sections -->
+    <string name="sidebar_section_slider">指示条设置</string>
+    <string name="sidebar_section_layout">布局设置</string>
+    <string name="sidebar_section_visual">视觉效果</string>
+    <string name="sidebar_section_miscellaneous">其他</string>
+
+    <!-- Slider settings -->
+    <string name="sidebar_transparency_value">指示条透明度：%1$.2f</string>
+    <string name="sidebar_length_value">指示条长度：%1$d</string>
+    <string name="sidebar_width_value">指示条宽度：%1$d</string>
+    <string name="sidebar_position_label">指示条位置</string>
+    <string name="sidebar_left">靠左</string>
+    <string name="sidebar_right">靠右</string>
+
+    <!-- Layout settings -->
+    <plurals name="sidebar_columns_value">
+        <item quantity="one">%1$d 列</item>
+        <item quantity="other">%1$d 列</item>
+    </plurals>
+    <string name="sidebar_icon_size_value">图标大小：%1$d dp</string>
+    <string name="sidebar_icon_padding_value">图标内边距：%1$d dp</string>
+    <string name="sidebar_icon_padding_summary">每个图标周围的间距</string>
+    <string name="sidebar_column_spacing_value">列间距：%1$d dp</string>
+    <string name="sidebar_column_spacing_summary">列与列之间的间距</string>
+    <string name="sidebar_corner_radius_value">圆角半径：%1$d dp</string>
+    <string name="sidebar_bg_transparency_value">背景透明度：%1$.2f</string>
+    <string name="sidebar_reset_defaults">恢复默认设置</string>
+
+    <!-- Visual effects -->
+    <string name="sidebar_drop_shadow_title">阴影</string>
+    <string name="sidebar_drop_shadow_summary">为侧边栏添加阴影效果</string>
+    
+    <!-- Miscellaneous -->
+    <string name="sidebar_tap_to_open_title">点击展开</string>
+    <string name="sidebar_tap_to_open_summary">点击指示条时展开侧边栏</string>
+    <string name="sidebar_swipe_to_open_title">滑动展开</string>
+    <string name="sidebar_swipe_to_open_summary">水平滑动指示条时展开侧边栏</string>
+    <string name="sidebar_hide_on_gamespace_title">游戏空间激活时隐藏</string>
+    <string name="sidebar_hide_on_gamespace_summary">在游戏空间中运行游戏时自动隐藏侧边栏指示条</string>
 </resources>
