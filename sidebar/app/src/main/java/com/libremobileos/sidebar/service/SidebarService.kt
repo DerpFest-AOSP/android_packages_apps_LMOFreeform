@@ -30,7 +30,6 @@ class SidebarService : Service(), SharedPreferences.OnSharedPreferenceChangeList
     private lateinit var viewModel: ServiceViewModel
     private lateinit var windowManager: WindowManager
     private lateinit var iActivityManager: IActivityManager
-    private lateinit var sidebarView: SidebarView
     private lateinit var sharedPrefs: SharedPreferences
     private var userId = 0
     private var serviceStarted = false
@@ -57,12 +56,14 @@ class SidebarService : Service(), SharedPreferences.OnSharedPreferenceChangeList
         }
     }
 
+    private var sidebarView: SidebarView? = null
+
     private val userSwitchObserver = object : UserSwitchObserver() {
         override fun onUserSwitchComplete(newUserId: Int) {
             logger.d("onUserSwitchComplete($userId)")
             if (!showSideline) return
             if (newUserId != userId) {
-                removeView(force = true)
+                removeView()
             } else {
                 showView()
             }
@@ -127,13 +128,6 @@ class SidebarService : Service(), SharedPreferences.OnSharedPreferenceChangeList
         iActivityManager.registerUserSwitchObserver(userSwitchObserver, TAG)
         serviceStarted = true
 
-        sidebarView = SidebarView(this@SidebarService, viewModel, object : SidebarView.Callback {
-            override fun onRemove() {
-                logger.d("sidebar view removed")
-                isShowingSidebar = false
-                if (showSideline) animateShowSideline()
-            }
-        })
         isShowingSidebar = false
         showSideline = sharedPrefs.getBoolean(SIDELINE, false)
         logger.d("screenWidth=$screenWidth screenHeight=$screenHeight showSideline=$showSideline")
@@ -156,7 +150,7 @@ class SidebarService : Service(), SharedPreferences.OnSharedPreferenceChangeList
             updateSidelinePosition()
         }
         if (isShowingSidebar) {
-            sidebarView.updateSidebarPosition()
+            sidebarView?.updateSidebarPosition()
         }
     }
 
@@ -166,7 +160,7 @@ class SidebarService : Service(), SharedPreferences.OnSharedPreferenceChangeList
         handler.removeCallbacks(hideSidelineRunnable)
         sharedPrefs.unregisterOnSharedPreferenceChangeListener(this)
         iActivityManager.unregisterUserSwitchObserver(userSwitchObserver)
-        removeView(force = true)
+        removeView()
         viewModel.destroy()
     }
 
@@ -177,7 +171,7 @@ class SidebarService : Service(), SharedPreferences.OnSharedPreferenceChangeList
                 if (showSideline) {
                     showView()
                 } else {
-                    removeView(force = true)
+                    removeView()
                 }
             }
             SLIDER_TRANSPARENCY -> {
@@ -201,8 +195,9 @@ class SidebarService : Service(), SharedPreferences.OnSharedPreferenceChangeList
 
     override fun showSidebar() {
         logger.d("showSidebar")
+        if (isShowingSidebar) return
         handler.removeCallbacks(hideSidelineRunnable)
-        sidebarView.showView()
+        sidebarView = createView().apply { showView() }
         isShowingSidebar = true
         animateHideSideline()
     }
@@ -279,6 +274,16 @@ class SidebarService : Service(), SharedPreferences.OnSharedPreferenceChangeList
         return sharedPrefs.getInt(SLIDER_LENGTH, DEFAULT_SIDELINE_HEIGHT)
     }
 
+    private fun createView() =
+        SidebarView(this@SidebarService, viewModel, object : SidebarView.Callback {
+            override fun onRemove() {
+                logger.d("sidebar view removed")
+                sidebarView = null
+                if (isShowingSidebar && showSideline) animateShowSideline()
+                isShowingSidebar = false
+            }
+        })
+
     /**
      * 启动侧边条
      */
@@ -311,14 +316,15 @@ class SidebarService : Service(), SharedPreferences.OnSharedPreferenceChangeList
 
         updateSidelinePosition()
 
+        isShowingSideline = true
         handler.post {
             runCatching {
                 windowManager.addView(sideLineView, layoutParams)
                 viewModel.registerCallbacks()
-                isShowingSideline = true
                 showSidelineForInteraction()
             }.onFailure { e ->
                 logger.e("failed to add sideline view: ", e)
+                isShowingSideline = false
             }
         }
     }
@@ -363,23 +369,23 @@ class SidebarService : Service(), SharedPreferences.OnSharedPreferenceChangeList
         }
     }
 
-    private fun removeView(force: Boolean = false) {
-        if (!isShowingSideline && !force) return
-
+    private fun removeView() {
         logger.d("removeView")
         handler.removeCallbacks(hideSidelineRunnable)
         viewModel.unregisterCallbacks()
 
-        handler.post {
-            runCatching {
-                windowManager.removeViewImmediate(sideLineView)
-            }.onFailure { e ->
-                logger.e("failed to remove sideline view: $e")
+        if (isShowingSideline) {
+            isShowingSideline = false
+            handler.post {
+                runCatching {
+                    windowManager.removeViewImmediate(sideLineView)
+                }.onFailure { e ->
+                    logger.e("failed to remove sideline view: ${e.message}")
+                }
             }
         }
 
-        sidebarView.removeView(force)
-        isShowingSideline = false
+        sidebarView?.removeView() ?: logger.d("sidebarView is null")
         isSidelineAutoHidden = false
     }
 
