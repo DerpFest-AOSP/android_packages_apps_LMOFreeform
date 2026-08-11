@@ -1,7 +1,6 @@
 package com.libremobileos.freeform.server.ui
 
 import android.annotation.SuppressLint
-import android.os.Build
 import android.util.Slog
 import android.view.Display
 import android.view.MotionEvent
@@ -60,11 +59,15 @@ class MaximizeClickListener(private val window: FreeformWindow): View.OnClickLis
     override fun onClick(v: View) {
         window.bringToFront()
         if (null != window.freeformTaskStackListener) {
-            if (window.freeformTaskStackListener!!.taskId == -1) {
-                Slog.e(TAG, "taskId is -1, can`t move")
+            val taskId = window.freeformTaskStackListener!!.taskId
+            if (taskId == -1) {
+                Slog.e(TAG, "taskId is -1, cannot move")
                 return
             }
-            runCatching { SystemServiceHolder.activityTaskManager.moveRootTaskToDisplay(window.freeformTaskStackListener!!.taskId, Display.DEFAULT_DISPLAY) }
+            window.postOnWorkerHandler {
+                runCatching { SystemServiceHolder.activityTaskManager.moveRootTaskToDisplay(taskId, Display.DEFAULT_DISPLAY) }
+                    .onFailure { Slog.e(TAG, "moveRootTaskToDisplay failed: $it") }
+            }
         }
     }
 }
@@ -75,9 +78,9 @@ class MaximizeClickListener(private val window: FreeformWindow): View.OnClickLis
 class PinClickListener(private val window: FreeformWindow): View.OnClickListener {
     override fun onClick(v: View) {
         window.bringToFront()
-        window.handler.post {
+        window.postOnHandler {
             // hangup
-            window.handleHangUp()
+            handleHangUp()
         }
     }
 }
@@ -128,14 +131,14 @@ class ScaleTouchListener(private val window: FreeformWindow, private val isRight
                 if (window.freeformView.surfaceTexture != null) {
                     window.freeformConfig.width = window.freeformRootView.layoutParams.width
                     window.freeformConfig.height = window.freeformRootView.layoutParams.height
-                    window.handler.post { window.makeSureFreeformInScreen() }
+                    window.postOnHandler { makeSureFreeformInScreen() }
                     // Resize only the overlay. Keeping the virtual display and its buffer at
                     // their initial size prevents apps from receiving a display config change.
                     window.measureScale(updateDisplaySize = false)
-                    window.handler.postDelayed({
-                        window.freeformRootView.visibility = View.VISIBLE
-                        window.veilView.visibility = View.GONE
-                    }, 250)
+                    window.postOnHandlerDelayed(250) {
+                        freeformRootView.visibility = View.VISIBLE
+                        veilView.visibility = View.GONE
+                    }
                 } else {
                     window.freeformRootView.visibility = View.VISIBLE
                     window.veilView.visibility = View.GONE
@@ -180,7 +183,7 @@ class MinimizedIconTouchListener(private val window: FreeformWindow) : View.OnTo
             }
             MotionEvent.ACTION_UP -> {
                 if (!hasMoved) {
-                    window.handler.post { window.handleHangUp() }
+                    window.postOnHandler { handleHangUp() }
                 }
             }
         }

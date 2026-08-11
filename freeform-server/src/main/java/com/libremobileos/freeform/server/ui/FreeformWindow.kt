@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable
 import android.graphics.PixelFormat
 import android.graphics.SurfaceTexture
 import android.os.Handler
+import android.os.Process
 import android.util.Slog
 import android.view.Display
 import android.view.DisplayInfo
@@ -26,6 +27,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.android.internal.policy.SystemBarUtils
 import com.android.server.LocalServices
+import com.android.server.ServiceThread
 import com.android.server.wm.WindowManagerInternal
 import com.libremobileos.freeform.ILMOFreeformDisplayCallback
 import com.libremobileos.freeform.server.util.Debug.dlog
@@ -38,7 +40,7 @@ import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 class FreeformWindow(
-    val handler: Handler,
+    private val handler: Handler,
     val context: Context,
     private val appConfig: AppConfig,
     val freeformConfig: FreeformConfig
@@ -62,6 +64,15 @@ class FreeformWindow(
     var defaultDisplayHeight = context.resources.displayMetrics.heightPixels
     private val defaultDisplayInfo = DisplayInfo()
     private val destroyRunnable = Runnable { destroy("destroyRunnable", true) }
+    /**
+     * For calls into the activity task manager and the display manager: those are synchronous and
+     * can block for seconds while the window manager lock is held. Running them on [handler] would
+     * stop us from reading this window's input channel, which ANRs the window.
+     */
+    private val workerThread =
+        ServiceThread("FreeformWindow", Process.THREAD_PRIORITY_DISPLAY, false /*allowIo*/)
+            .apply { start() }
+    private val workerHandler = workerThread.threadHandler
 
     private val rotationWatcher = object : IRotationWatcher.Stub() {
         override fun onRotationChanged(rotation: Int) {
@@ -206,14 +217,12 @@ class FreeformWindow(
     override fun onDisplayHasSecureWindowOnScreenChanged(displayId: Int, hasSecureWindowOnScreen: Boolean) {
         if (displayId != this.displayId) return;
         dlog(TAG, "onDisplayHasSecureWindowOnScreenChanged: $hasSecureWindowOnScreen")
-        windowParams.apply {
-            flags = if (hasSecureWindowOnScreen) {
-                flags or WindowManager.LayoutParams.FLAG_SECURE
-            } else {
-                flags and WindowManager.LayoutParams.FLAG_SECURE.inv()
-            }
-        }
         handler.post {
+            windowParams.flags = if (hasSecureWindowOnScreen) {
+                windowParams.flags or WindowManager.LayoutParams.FLAG_SECURE
+            } else {
+                windowParams.flags and WindowManager.LayoutParams.FLAG_SECURE.inv()
+            }
             runCatching { FreeformWindowManager.updateWindowSecurity(this@FreeformWindow) }
                 .onFailure { Slog.e(TAG, "updateViewLayout failed: $it") }
         }
@@ -337,16 +346,7 @@ class FreeformWindow(
             freeformConfig.height = constrainedHeight
             measureScale()
             changeOrientation()
-            LMOFreeformServiceHolder.resizeFreeform(
-                this@FreeformWindow,
-                freeformConfig.freeformWidth,
-                freeformConfig.freeformHeight,
-                freeformConfig.densityDpi
-            )
-            freeformView?.surfaceTexture?.setDefaultBufferSize(
-                freeformConfig.freeformWidth,
-                freeformConfig.freeformHeight
-            )
+            resizeFreeformDisplay()
         }
     }
 
@@ -610,6 +610,21 @@ class FreeformWindow(
         else if (windowParams.y > upperY) FreeformAnimation.moveInScreenAnimator(windowParams.y, upperY, 300, false, this)
     }
 
+    fun resizeFreeformDisplay() {
+        workerHandler.post {
+            LMOFreeformServiceHolder.resizeFreeform(
+                this@FreeformWindow,
+                freeformConfig.freeformWidth,
+                freeformConfig.freeformHeight,
+                freeformConfig.densityDpi
+            )
+            freeformView.surfaceTexture?.setDefaultBufferSize(
+                freeformConfig.freeformWidth,
+                freeformConfig.freeformHeight
+            )
+        }
+    }
+
     /**
      * Change freeform orientation
      * Called in system handler
@@ -626,14 +641,34 @@ class FreeformWindow(
         return "${appConfig.packageName},${appConfig.activityName},${appConfig.userId}"
     }
 
+    /**
+     * Runs [action] on the thread that owns this window's views.
+     */
+    fun postOnHandler(action: FreeformWindow.() -> Unit) {
+        handler.post { action() }
+    }
+
+    fun postOnHandlerDelayed(delayMs: Long, action: FreeformWindow.() -> Unit) {
+        handler.postDelayed({ action() }, delayMs)
+    }
+
+    /**
+     * Runs [action] off the window handler, for calls that can block. See [workerThread].
+     */
+    fun postOnWorkerHandler(action: FreeformWindow.() -> Unit) {
+        workerHandler.post { action() }
+    }
+
     fun close() {
         dlog(TAG, "close()")
-        runCatching {
-            SystemServiceHolder.activityTaskManager.removeTask(freeformTaskStackListener!!.taskId)
-            removeView()
-        }.onFailure { exception ->
-            Slog.e(TAG, "removeTask failed: ", exception)
-            destroy("window.close() fallback")
+        workerHandler.post {
+            runCatching {
+                SystemServiceHolder.activityTaskManager.removeTask(freeformTaskStackListener!!.taskId)
+                removeView()
+            }.onFailure { exception ->
+                Slog.e(TAG, "removeTask failed: ", exception)
+                destroy("window.close() fallback")
+            }
         }
     }
 
