@@ -67,7 +67,9 @@ class FreeformTaskStackListener(
     override fun onTaskRemoved(taskId: Int) {
         if (this.taskId == taskId) {
             dlog(TAG, "onTaskRemoved $taskId")
-            window.postOnHandler { destroy("onTaskRemoved", true) }
+            window.postOnHandler { 
+                destroy("onTaskRemoved", shouldRemoveTask = true)
+            }
         }
     }
 
@@ -117,7 +119,12 @@ class FreeformTaskStackListener(
 
     override fun onTaskDisplayChanged(taskId: Int, newDisplayId: Int) {
         if (taskId == this.taskId && newDisplayId == Display.DEFAULT_DISPLAY) {
-            window.postOnHandler { destroy("onTaskDisplayChanged: $taskId to main display") }
+            window.postOnHandler {
+                destroy(
+                    "onTaskDisplayChanged: $taskId to main display",
+                    delayDisplayRelease = true,
+                )
+            }
         } else if (newDisplayId == displayId) {
             this.taskId = taskId
             dlog(TAG, "onTaskDisplayChanged: $taskId to freeform display")
