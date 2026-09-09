@@ -73,12 +73,23 @@ class SidebarView(
         savedStateRegistryController.performRestore(null)
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
         composeView = object : AbstractComposeView(context) {
-            private val backCallback = OnBackInvokedCallback { removeView() }
+            private val backCallback = OnBackInvokedCallback {
+                logger.d("onBackInvoked")
+                removeView()
+            }
 
             override fun onAttachedToWindow() {
                 super.onAttachedToWindow()
-                findOnBackInvokedDispatcher()?.registerOnBackInvokedCallback(
-                    OnBackInvokedDispatcher.PRIORITY_DEFAULT,
+                isFocusable = true
+                isFocusableInTouchMode = true
+                requestFocus()
+                val dispatcher = findOnBackInvokedDispatcher()
+                if (dispatcher == null) {
+                    logger.e("no OnBackInvokedDispatcher after attach")
+                    return
+                }
+                dispatcher.registerOnBackInvokedCallback(
+                    OnBackInvokedDispatcher.PRIORITY_OVERLAY,
                     backCallback
                 )
             }
@@ -86,6 +97,17 @@ class SidebarView(
             override fun onDetachedFromWindow() {
                 findOnBackInvokedDispatcher()?.unregisterOnBackInvokedCallback(backCallback)
                 super.onDetachedFromWindow()
+            }
+
+            override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+                if (event.keyCode == KeyEvent.KEYCODE_BACK) {
+                    if (event.action == KeyEvent.ACTION_UP) {
+                        logger.d("KEYCODE_BACK")
+                        removeView()
+                    }
+                    return true
+                }
+                return super.dispatchKeyEvent(event)
             }
 
             @Composable
