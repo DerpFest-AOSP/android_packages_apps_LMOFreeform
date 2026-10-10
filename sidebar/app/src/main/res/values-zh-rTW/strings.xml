@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">側邊欄</string>
+    <string name="enable_sideline">使用側邊欄</string>
+    <string name="sidebar_label">側邊欄</string>
+    <string name="sidebar_summary">在懸浮視窗中快速開啟應用程式</string>
+    <string name="sidebar_app_setting_label">已固定的應用程式</string>
+    <string name="sidebar_settings_description">開啟側邊欄設定</string>
+    <string name="sidebar_predicted_apps">顯示應用程式建議</string>
+    <string name="sidebar_predicted_apps_summary">在已固定的應用程式下方顯示最多 6 個建議應用程式</string>
+    <string name="sidebar_customization_title">側邊欄自訂</string>
+    <string name="sidebar_section_slider">滑動把手設定</string>
+    <string name="sidebar_section_layout">版面配置設定</string>
+    <string name="sidebar_section_visual">視覺效果</string>
+    <string name="sidebar_section_miscellaneous">其他</string>
+    <string name="sidebar_transparency_value">滑動把手透明度：%1$.2f</string>
+    <string name="sidebar_length_value">滑動把手長度：%1$d</string>
+    <string name="sidebar_width_value">滑動把手寬度：%1$d</string>
+    <string name="sidebar_position_label">滑動把手位置</string>
+    <string name="sidebar_left">螢幕左側</string>
+    <string name="sidebar_right">螢幕右側</string>
+    <plurals name="sidebar_columns_value">
+        <item quantity="one">%1$d 欄</item>
+        <item quantity="other">%1$d 欄</item>
+    </plurals>
+    <string name="sidebar_icon_size_value">圖示大小：%1$d dp</string>
+    <string name="sidebar_icon_padding_value">圖示內距：%1$d dp</string>
+    <string name="sidebar_column_spacing_value">欄間距：%1$d dp</string>
+    <string name="sidebar_corner_radius_value">圓角半徑：%1$d dp</string>
+    <string name="sidebar_bg_transparency_value">背景透明度：%1$.2f</string>
+    <string name="sidebar_reset_defaults">重設為預設設定</string>
+    <string name="sidebar_drop_shadow_title">陰影</string>
+    <string name="sidebar_tap_to_open_title">輕觸以開啟側邊欄</string>
+    <string name="sidebar_tap_to_open_summary">輕觸滑動把手時開啟側邊欄</string>
+    <string name="sidebar_swipe_to_open_title">滑動以開啟側邊欄</string>
+    <string name="sidebar_swipe_to_open_summary">水平滑動把手時開啟側邊欄</string>
+    <string name="sidebar_hide_on_gamespace_title">啟用遊戲空間時隱藏</string>
+    <string name="sidebar_hide_on_gamespace_summary">使用遊戲空間執行遊戲時，自動隱藏側邊欄滑動把手</string>
+</resources>
