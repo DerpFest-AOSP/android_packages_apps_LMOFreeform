@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">LMOFreeform</string>
+    
+    <!-- Toast messages -->
+    <string name="freeform_service_unavailable">自由窗口服务不可用</string>
+    <string name="freeform_window_failed">在浮动窗口中打开失败</string>
+</resources>
